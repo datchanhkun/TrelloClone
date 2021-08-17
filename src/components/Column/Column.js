@@ -1,15 +1,17 @@
 import React from 'react'
 import './Column.scss';
-import Task from 'components/Task/Task';
-function Column() {
+import Card from 'components/Card/Card';
+import { mapOrder } from 'ultilities/sort';
+
+function Column(props) {
+  const { column } = props;
+  //sort cards
+  const cards = mapOrder(column.cards, column.cardOrder,'id');
   return (
     <div className="column">
-    <header>Braindstorm</header>
-    <ul className="task-list">
-      <Task/>
-      <li className="task-item">Build web trello clone 1</li>
-      <li className="task-item">Build web trello clone 2</li>
-      <li className="task-item">Build web trello clone 3</li>
+    <header>{column.title}</header>
+    <ul className="card-list">
+      {cards.map((card,index) => <Card key={index} card={card} />)}
     </ul>
     <footer>Add Another Card</footer>
   </div>
