@@ -3,6 +3,7 @@
 $appbar-bg-color: #40A35B; 
 
 .navbar-app {
+  height: $navbar-app-height;
   padding: $gap;
   display: flex;
   align-items: center;
