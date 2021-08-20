@@ -4,8 +4,10 @@
 $gap: 10px;
 
 //define background color
+$app-main-text-color: #333;
 $board-bg-color: #4BBF6B;
 $common-element-bg: rgba(255,255,255,.24);
+
 //define secreen
 $screen-lg: 1201px;
 $screen-md: 992px;
@@ -17,3 +19,6 @@ $screen-ip6-down: '(max-width: 375px)';
 $navbar-app-height: 5vh;
 $navbar-board-height: 6vh;
 $board-content-height: 88vh;
+
+//define border radius
+$column-border-radius: 5px;
