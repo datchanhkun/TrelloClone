@@ -104,6 +104,31 @@ function BoardContent() {
     setNewColumnTitle('') //set lại input rỗng
     toggleOpenNewColumnForm() //set lại toggle
   }
+
+  const onUpdateColumn = (newColumnToUpdate) => {
+    //Lấy ra cái id column cần update
+    const columnIdToUpdate = newColumnToUpdate.id
+    //clone lại mảng column
+    let newColumns = [...columns]
+    //tìm index columnUpdate trong array column
+    const columnIndexToUpdate = newColumns.findIndex(i => i.id === columnIdToUpdate)
+    //Kiểm tra đang xóa column hay update column
+    if (newColumnToUpdate._destroy) {
+      //Xóa 1 phần tử từ 1 vị trí index trong mảng newColumn
+      newColumns.splice(columnIndexToUpdate, 1)
+    } else {
+      //update column infor bằng cách xóa phần tử tại index đó rồi thêm 1 phần tử mới vào ngay vị trí index đó
+      newColumns.splice(columnIndexToUpdate, 1, newColumnToUpdate)
+    }
+
+    //update lại state
+    let newBoard = { ...board }
+    newBoard.columnOrder = newColumns.map(c => c.id)
+    newBoard.columns = newColumns
+
+    setColumns(newColumns)
+    setBoard(newBoard)
+  }
   return (
     <div className="board-content">
       <Container
@@ -119,7 +144,7 @@ function BoardContent() {
       >
         {columns.map((column, index) => (
           <Draggable key={index}>
-            <Column column={column} onCardDrop={onCardDrop} />
+            <Column column={column} onCardDrop={onCardDrop} onUpdateColumn={onUpdateColumn} />
           </Draggable>
         ))}
       </Container>
