@@ -2,8 +2,14 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Container, Draggable } from 'react-smooth-dnd'
 import './BoardContent.scss'
 import Column from 'components/Column/Column'
-import { fetchBoardDetails, createNewColumn } from 'actions/ApiCall'
-import { isEmpty } from 'lodash'
+import {
+  fetchBoardDetails,
+  createNewColumn,
+  updateBoard,
+  updateColumn,
+  updateCard
+} from 'actions/ApiCall'
+import { isEmpty, cloneDeep } from 'lodash'
 import { mapOrder } from 'ultilities/sort'
 import { applyDrag } from 'ultilities/dragDrop'
 import { Container as BootstrapContainer, Row, Col, Form, Button } from 'react-bootstrap'
@@ -44,21 +50,32 @@ function BoardContent() {
   }
   //Xử lý kéo thả column và set state
   const onColumnDrop = (dropResult) => {
-    let newColumns = [ ...columns]
+    let newColumns = cloneDeep(columns)
     newColumns = applyDrag(newColumns, dropResult)
 
     //update columnOrder in board
-    let newBoard = { ...board }
+    let newBoard = cloneDeep(board)
     newBoard.columnOrder = newColumns.map(c => c._id)
     newBoard.columns = newColumns
+
     setColumns(newColumns)
     setBoard(newBoard)
+
+    //So sánh columnOrder của board khác với newBoard thì mới call API
+    if (JSON.stringify(board.columnOrder) !== JSON.stringify(newBoard.columnOrder) ) {
+      //Call API Update columnOrder in Board
+      updateBoard(newBoard._id, newBoard).catch(() => {
+        // Trường hợp gặp lỗi thì set lại state cũ
+        setColumns(columns)
+        setBoard(board)
+      })
+    }
   }
   //Xử lý kéo thả card và xử lý state => truyền xuống component con
   const onCardDrop = (columnId, dropResult) => {
     //check removeIndex & addIndex có tồn tại thì check column
     if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
-      let newColumns = [ ...columns]
+      let newColumns = cloneDeep(columns)
       //find column current
       let currentColumn = newColumns.find(c => c._id === columnId)
       currentColumn.cards = applyDrag(currentColumn.cards, dropResult)
@@ -66,6 +83,35 @@ function BoardContent() {
       currentColumn.cardOrder = currentColumn.cards.map(i => i._id)
 
       setColumns(newColumns)
+      if (dropResult.removedIndex !== null && dropResult.addedIndex !== null) {
+        /**
+         * Action: Kéo thả card trong cùng 1 column
+         * Call API update cardOrder của column hiện tại
+         */
+        //So sánh removedIndex khác với addedIndex thì mới call API
+        if (dropResult.removedIndex !== dropResult.addedIndex) {
+          updateColumn(currentColumn._id, currentColumn).catch(() => {
+            setColumns(columns)
+          })
+        }
+
+      } else {
+        /**
+         * Action: Kéo thả card giữa 2 column
+         * Call API update cardOrder của column hiện tại
+         * Call API update columnId của card được kéo
+         */
+        updateColumn(currentColumn._id, currentColumn).catch(() => {
+          setColumns(columns)
+        })
+        if (dropResult.addedIndex !== null) {
+          let currentCard = cloneDeep(dropResult.payload)
+          currentCard.columnId = currentColumn._id
+          //Call api 2
+          updateCard(currentCard._id, currentCard)
+        }
+
+      }
     }
   }
 
