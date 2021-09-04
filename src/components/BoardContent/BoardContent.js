@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Container, Draggable } from 'react-smooth-dnd'
 import './BoardContent.scss'
 import Column from 'components/Column/Column'
-import { initialData } from 'actions/initialData'
+import { fetchBoardDetails } from 'actions/ApiCall'
 import { isEmpty } from 'lodash'
 import { mapOrder } from 'ultilities/sort'
 import { applyDrag } from 'ultilities/dragDrop'
@@ -18,18 +18,12 @@ function BoardContent() {
 
   const newColumnInputRef = useRef(null)
   useEffect(() => {
-    const boardFromData = initialData.boards.find(
-      (board) => board.id === 'board-1'
-    )
-    //Check data có tồn tại thì gán vào state
-    if (boardFromData) {
-      setBoard(boardFromData)
-
+    const boardId = '613278a9b04ef9f02b8178cd'
+    fetchBoardDetails(boardId).then(board => {
+      setBoard(board)
       //sort array column order
-      setColumns(
-        mapOrder(boardFromData.columns, boardFromData.columnOrder, 'id')
-      )
-    }
+      setColumns(mapOrder(board.columns, board.columnOrder, '_id'))
+    })
   }, [])
 
   useEffect(() => {
@@ -55,7 +49,7 @@ function BoardContent() {
 
     //update columnOrder in board
     let newBoard = { ...board }
-    newBoard.columnOrder = newColumns.map(c => c.id)
+    newBoard.columnOrder = newColumns.map(c => c._id)
     newBoard.columns = newColumns
     setColumns(newColumns)
     setBoard(newBoard)
@@ -66,10 +60,10 @@ function BoardContent() {
     if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
       let newColumns = [ ...columns]
       //find column current
-      let currentColumn = newColumns.find(c => c.id === columnId)
+      let currentColumn = newColumns.find(c => c._id === columnId)
       currentColumn.cards = applyDrag(currentColumn.cards, dropResult)
       //update card order
-      currentColumn.cardOrder = currentColumn.cards.map(i => i.id)
+      currentColumn.cardOrder = currentColumn.cards.map(i => i._id)
 
       setColumns(newColumns)
     }
@@ -84,7 +78,7 @@ function BoardContent() {
 
     const newColumnToAdd = {
       id: Math.random().toString(36).substr(2, 5), //random id 5 kí tự
-      boardId: board.id,
+      boardId: board._id,
       title: newColumnTitle.trim(), //cắt khoảng cách dư thừa trong input
       cardOrder: [],
       cards: []
@@ -95,7 +89,7 @@ function BoardContent() {
 
     //update columnOrder in board
     let newBoard = { ...board }
-    newBoard.columnOrder = newColumns.map(c => c.id)
+    newBoard.columnOrder = newColumns.map(c => c._id)
     newBoard.columns = newColumns
 
     setColumns(newColumns)
@@ -107,11 +101,11 @@ function BoardContent() {
 
   const onUpdateColumn = (newColumnToUpdate) => {
     //Lấy ra cái id column cần update
-    const columnIdToUpdate = newColumnToUpdate.id
+    const columnIdToUpdate = newColumnToUpdate._id
     //clone lại mảng column
     let newColumns = [...columns]
     //tìm index columnUpdate trong array column
-    const columnIndexToUpdate = newColumns.findIndex(i => i.id === columnIdToUpdate)
+    const columnIndexToUpdate = newColumns.findIndex(i => i._id === columnIdToUpdate)
     //Kiểm tra đang xóa column hay update column
     if (newColumnToUpdate._destroy) {
       //Xóa 1 phần tử từ 1 vị trí index trong mảng newColumn
@@ -123,7 +117,7 @@ function BoardContent() {
 
     //update lại state
     let newBoard = { ...board }
-    newBoard.columnOrder = newColumns.map(c => c.id)
+    newBoard.columnOrder = newColumns.map(c => c._id)
     newBoard.columns = newColumns
 
     setColumns(newColumns)
