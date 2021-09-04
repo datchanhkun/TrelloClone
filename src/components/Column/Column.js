@@ -8,8 +8,9 @@ import { Dropdown, Form, Button } from 'react-bootstrap'
 import { cloneDeep } from 'lodash'
 import { MODAL_ACTION_CONFIRM } from 'ultilities/constants'
 import { saveContentSavePressEnter, selectAllInlineText } from 'ultilities/contentEditable'
+import { createNewCard, updateColumn } from 'actions/ApiCall'
 function Column(props) {
-  const { column, onCardDrop, onUpdateColumn } = props
+  const { column, onCardDrop, onUpdateColumnState } = props
   //sort cards
   const cards = mapOrder(column.cards, column.cardOrder, '_id')
   const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -39,7 +40,7 @@ function Column(props) {
     }
   }, [openNewCardForm])
 
-
+  //Remove Column
   const onConfirmModalAction = (type) => {
     if (type === MODAL_ACTION_CONFIRM) {
       //remove column
@@ -47,17 +48,28 @@ function Column(props) {
         ...column,
         _destroy: true
       }
-      onUpdateColumn(newColumn)
+      //Call API Remove Column
+      updateColumn(newColumn._id, newColumn).then(updatedColumn => {
+        onUpdateColumnState(updatedColumn)
+      })
     }
     toggleShowConfirmModal()
   }
 
+  //Update Column Title
   const handleColumnTitleBlur = () => {
-    const newColumn = {
-      ...column,
-      title: columnTitle
+    //So sánh title truyền xuống và title state hiện tại khác thì mới call API
+    if (columnTitle !== column.title) {
+      const newColumn = {
+        ...column,
+        title: columnTitle
+      }
+      //Call API Update Column
+      updateColumn(newColumn._id, newColumn).then(updatedColumn => {
+        updatedColumn.cards = newColumn.cards
+        onUpdateColumnState(updatedColumn)
+      })
     }
-    onUpdateColumn(newColumn)
   }
 
   const addNewCard = () => {
@@ -67,23 +79,23 @@ function Column(props) {
       return
     }
     const newCardToAdd = {
-      id: Math.random().toString(36).substr(2, 5), //random string id 5 kí tự
       boardId: column.boardId,
       columnId: column._id,
-      title: newCardTitle.trim(), //cắt khoảng cách dư thừa trong input
-      cover: null
+      title: newCardTitle.trim()
     }
+    //Call API
+    createNewCard(newCardToAdd).then(card => {
+      //push card vào trong mảng card và cardOrder
+      //sử dụng cloneDeep để clone object column và tạo ra 1 value mới không liên quan gì đến value cũ
+      let newColumn = cloneDeep(column)
+      newColumn.cards.push(card)
+      newColumn.cardOrder.push(card._id)
 
-    //push card vào trong mảng card và cardOrder
-    //sử dụng cloneDeep để clone object column và tạo ra 1 value mới không liên quan gì đến value cũ
-    let newColumn = cloneDeep(column)
-    newColumn.cards.push(newCardToAdd)
-    newColumn.cardOrder.push(newCardToAdd._id)
+      onUpdateColumnState(newColumn)
+      setNewCardTitle('')
+      toggleOpenNewCardForm()
 
-    onUpdateColumn(newColumn)
-    setNewCardTitle('')
-    toggleOpenNewCardForm()
-
+    })
   }
   return (
     <div className="column">
