@@ -1,0 +1,123 @@
+@import '_settings.scss';
+
+body {
+  background-color: #d0d0ce;
+  min-height: 100vh;
+}
+@media (min-width: 1400px) {
+  .trello-auth-container {
+    max-width: 1140px;
+  }
+}
+@media screen and (max-width: 480px) {
+  .wallpaper-login-img {
+    display: none;
+  }
+}
+.form-auth {
+  .trello-auth {
+    border: 0;
+    border-radius: 27.5px;
+    box-shadow: 0 10px 30px 0 rgba(172, 168, 168, 0.43);
+    overflow: hidden; 
+    .wallpaper-login-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      -o-object-fit: cover;
+      img {
+        border-radius: 0;
+        position: absolute;
+      }
+    }
+    .card-body {
+      padding: 85px 60px 60px;
+      .brand-wrapper {
+        .logo-login {
+          margin-bottom: 19px;
+          height: 37px;
+        }
+        .login-card-description {
+          font-size: 25px;
+          color: #000;
+          font-weight: normal;
+          margin-bottom: 23px;
+        }
+        .form-action {
+          max-width: 356px;
+          .forgot-password-link {
+            text-align: end;
+            margin-bottom: 12px;
+            a {
+              text-decoration: none;
+              font-size: 14px;
+              color: #919aa3;
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+          .login-btn {
+            width: 100%;
+            height: 100%;
+            padding: 13px 20px 12px;
+            background-color: #000;
+            border-radius: 4px;
+            font-size: 17px;
+            font-weight: bold;
+            line-height: 20px;
+            color: #fff;
+            margin-bottom: 24px;
+            border: 1px solid #fff;
+            &:hover {
+              border: 1px solid #000;
+              background-color: transparent;
+              color: #000;
+            }
+          }
+          .login-with {
+            text-align: center;
+            font-size: 16px;
+            color: #0d2366;
+            margin-bottom: 16px;
+          }
+          .login-social {
+            margin-bottom: 16px;
+            .login-facebook {
+              width: 100%;
+              height: 100%;
+              background-color: #3b5997;
+              border: 1px solid #3b5997;
+              &:hover {
+                filter: brightness(110%);
+              }
+            }
+            .login-google {
+              width: 100%;
+              height: 100%;
+              background-color: #ea4335;
+              border: 1px solid #ea4335;
+              &:hover {
+                filter: brightness(110%);
+              }
+            }
+          }
+          .login-card-footer-text {
+            text-align: center;
+            font-size: 16px;
+            color: #0d2366;
+            margin-bottom: 30px;
+            a {
+              text-decoration: none;
+              &:hover {
+                cursor: pointer;
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+        
+      }
+    }
+  }
+}
